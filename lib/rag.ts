@@ -4,13 +4,12 @@ import { matchDocuments, type MatchResult } from './supabase'
 import { parseChunkMeta } from './utils'
 import type { JournalChunk, ChunkMetadata } from './types'
 
-// text-embedding-004 outputs 768-dim vectors by default.
-// If your existing chunks were embedded with a different model/dimension,
-// update EMBEDDING_DIMENSIONS in your env and re-embed the chunks table.
-const EMBEDDING_MODEL =
-  process.env.EMBEDDING_MODEL ?? 'text-embedding-004'
+// Embeddings: gemini-embedding-2 (3072 dims) must match the model used by the
+// n8n pipeline that populated the chunks table.
+// Generation: Google Gemini via GOOGLE_GENERATIVE_AI_API_KEY.
+const EMBEDDING_MODEL = process.env.EMBEDDING_MODEL ?? 'gemini-embedding-2'
 const EMBEDDING_DIMENSIONS = parseInt(
-  process.env.EMBEDDING_DIMENSIONS ?? '768',
+  process.env.EMBEDDING_DIMENSIONS ?? '3072',
   10,
 )
 

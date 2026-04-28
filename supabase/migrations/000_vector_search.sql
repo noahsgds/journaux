@@ -2,17 +2,16 @@
 create extension if not exists vector;
 
 -- ─────────────────────────────────────────────────────────────────────────────
--- The `chunks` and `documents` tables already exist in the Journaux database.
--- Schema (confirmed):
---   chunks    → id bigint, content text, metadata jsonb, embedding vector
---   documents → id bigint, content text, metadata jsonb, embedding vector
+-- Tables confirmed in the Journaux database:
+--   chunks    → id bigint, content text, metadata jsonb, embedding vector(3072)
+--   documents → id bigint, content text, metadata jsonb, embedding vector(3072)
 --
--- Only the match_chunks RPC function needs to be created.
--- Adjust the embedding dimension below if your vectors are not 1536-dim.
+-- Embeddings were created by n8n using OpenAI text-embedding-3-large (3072 dims).
+-- VectorLens uses the same model for query embedding to ensure compatibility.
 -- ─────────────────────────────────────────────────────────────────────────────
 
 create or replace function match_chunks(
-  query_embedding  vector(1536),   -- change to 3072 for text-embedding-3-large
+  query_embedding  vector(3072),
   match_count      int     default 8,
   match_threshold  float   default 0.6
 )
