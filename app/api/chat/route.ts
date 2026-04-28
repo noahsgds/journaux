@@ -1,5 +1,5 @@
 import { streamText, StreamData } from 'ai'
-import { anthropic } from '@ai-sdk/anthropic'
+import { google } from '@ai-sdk/google'
 import { retrieveChunks, buildSystemPrompt } from '@/lib/rag'
 import type { JournalChunk } from '@/lib/types'
 
@@ -29,16 +29,14 @@ export async function POST(req: Request) {
 
   const systemPrompt = buildSystemPrompt(chunks)
 
-  // Stream sources alongside the text response.
-  // JSON.parse(JSON.stringify(...)) produces a plain JSONValue-compatible object,
-  // avoiding the ChunkMetadata union type incompatibility with StreamData.append().
+  // Stream sources alongside the text response
   const data = new StreamData()
   data.append(JSON.parse(JSON.stringify({ sources: chunks })))
 
-  const model = process.env.GENERATION_MODEL ?? 'claude-sonnet-4-6'
+  const model = process.env.GENERATION_MODEL ?? 'gemini-2.0-flash'
 
   const result = await streamText({
-    model: anthropic(model),
+    model: google(model),
     system: systemPrompt,
     messages,
     temperature: 0.3,

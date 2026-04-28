@@ -1,12 +1,16 @@
 import { embed } from 'ai'
-import { openai } from '@ai-sdk/openai'
+import { google } from '@ai-sdk/google'
 import { matchDocuments, type MatchResult } from './supabase'
 import { parseChunkMeta } from './utils'
 import type { JournalChunk, ChunkMetadata } from './types'
 
-const EMBEDDING_MODEL = process.env.EMBEDDING_MODEL ?? 'text-embedding-3-small'
+// text-embedding-004 outputs 768-dim vectors by default.
+// If your existing chunks were embedded with a different model/dimension,
+// update EMBEDDING_DIMENSIONS in your env and re-embed the chunks table.
+const EMBEDDING_MODEL =
+  process.env.EMBEDDING_MODEL ?? 'text-embedding-004'
 const EMBEDDING_DIMENSIONS = parseInt(
-  process.env.EMBEDDING_DIMENSIONS ?? '1536',
+  process.env.EMBEDDING_DIMENSIONS ?? '768',
   10,
 )
 
@@ -14,8 +18,8 @@ const EMBEDDING_DIMENSIONS = parseInt(
 
 export async function getEmbedding(text: string): Promise<number[]> {
   const { embedding } = await embed({
-    model: openai.embedding(EMBEDDING_MODEL, {
-      dimensions: EMBEDDING_DIMENSIONS,
+    model: google.textEmbeddingModel(EMBEDDING_MODEL, {
+      outputDimensionality: EMBEDDING_DIMENSIONS,
     }),
     value: text.replace(/\n+/g, ' ').trim(),
   })
@@ -39,13 +43,12 @@ export async function retrieveChunksForSubjects(
   matchCount = 5,
   matchThreshold = 0.55,
 ): Promise<{ subject: string; chunks: JournalChunk[] }[]> {
-  const results = await Promise.all(
+  return Promise.all(
     subjects.map(async (subject) => {
       const chunks = await retrieveChunks(subject, matchCount, matchThreshold)
       return { subject, chunks }
     }),
   )
-  return results
 }
 
 // ─── Prompt construction ──────────────────────────────────────────────────────
