@@ -1,18 +1,22 @@
 import { createClient } from '@supabase/supabase-js'
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
-const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY
+// ─── Lazy client factories ────────────────────────────────────────────────────
+// Never instantiate at module level — env vars are absent at Next.js build time.
 
-// Public client (safe for browser)
-export const supabase = createClient(supabaseUrl, supabaseAnonKey)
+function getSupabaseUrl(): string {
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL
+  if (!url) throw new Error('NEXT_PUBLIC_SUPABASE_URL is not set')
+  return url
+}
 
-// Server-side admin client (never expose to browser)
+// Server-side admin client using service role key (never sent to browser)
 export function createAdminClient() {
-  const key = supabaseServiceKey ?? supabaseAnonKey
-  return createClient(supabaseUrl, key, {
-    auth: { persistSession: false },
-  })
+  const url = getSupabaseUrl()
+  const key =
+    process.env.SUPABASE_SERVICE_ROLE_KEY ??
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+  if (!key) throw new Error('SUPABASE_SERVICE_ROLE_KEY is not set')
+  return createClient(url, key, { auth: { persistSession: false } })
 }
 
 // ─── Vector search ────────────────────────────────────────────────────────────
