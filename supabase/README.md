@@ -1,33 +1,51 @@
-# Supabase Setup
+# Supabase — Journaux
 
-## 1. Run migrations
+## Schéma confirmé
 
-Apply these SQL files in order in the Supabase SQL editor or via the CLI:
+| Table | Colonnes |
+|---|---|
+| `chunks` | `id` bigint, `content` text, `metadata` jsonb, `embedding` vector |
+| `documents` | `id` bigint, `content` text, `metadata` jsonb, `embedding` vector |
 
-```bash
-supabase db push
-# or apply manually:
-# 000_vector_search.sql  — pgvector + match_documents RPC
-# 001_profiles.sql       — profiles table
-```
+VectorLens effectue les recherches vectorielles sur la table **`chunks`**.
 
-## 2. Existing journal data
+## Seule migration à appliquer
 
-If your journal entries table has a different name or column layout, update:
+Crée la fonction RPC dans le SQL Editor de Supabase :
 
-- `SUPABASE_DOCUMENTS_TABLE` in `.env.local`
-- `SUPABASE_MATCH_FUNCTION` (defaults to `match_documents`)
-- `EMBEDDING_DIMENSIONS` (1536 for OpenAI ada-002 / text-embedding-3-small)
-
-## 3. Match function signature
-
-The app calls:
 ```sql
-select * from match_documents(
-  query_embedding  => <vector>,
-  match_count      => 8,
-  match_threshold  => 0.6
-);
+-- Adapte la dimension (1536, 3072, etc.) à celle de tes embeddings existants
+create or replace function match_chunks(
+  query_embedding  vector(1536),
+  match_count      int   default 8,
+  match_threshold  float default 0.6
+)
+returns table (id bigint, content text, metadata jsonb, similarity float)
+language plpgsql stable as $$
+begin
+  return query
+  select c.id, c.content, c.metadata,
+         1 - (c.embedding <=> query_embedding) as similarity
+  from chunks c
+  where 1 - (c.embedding <=> query_embedding) > match_threshold
+  order by c.embedding <=> query_embedding
+  limit match_count;
+end;
+$$;
 ```
 
-Expected return columns: `id`, `content`, `metadata` (jsonb), `similarity` (float).
+Puis crée la table des profils :
+
+```sql
+-- migrations/001_profiles.sql
+```
+
+## Variables d'environnement
+
+```
+NEXT_PUBLIC_SUPABASE_URL=https://bxpmlrkbumfrqqxwvtym.supabase.co
+NEXT_PUBLIC_SUPABASE_ANON_KEY=<clé anon>
+SUPABASE_SERVICE_ROLE_KEY=<clé service_role>
+SUPABASE_DOCUMENTS_TABLE=chunks
+SUPABASE_MATCH_FUNCTION=match_chunks
+```

@@ -30,7 +30,7 @@ export async function matchDocuments(
   matchThreshold = 0.6,
 ): Promise<MatchResult[]> {
   const admin = createAdminClient()
-  const fn = process.env.SUPABASE_MATCH_FUNCTION ?? 'match_documents'
+  const fn = process.env.SUPABASE_MATCH_FUNCTION ?? 'match_chunks'
 
   const { data, error } = await admin.rpc(fn, {
     query_embedding: queryEmbedding,

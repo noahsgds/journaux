@@ -2,33 +2,17 @@
 create extension if not exists vector;
 
 -- ─────────────────────────────────────────────────────────────────────────────
--- Journal entries table
--- Adjust to match your existing schema — this is the reference shape.
--- If the table already exists with embeddings, skip the CREATE TABLE block
--- and only add the match_documents function below.
+-- The `chunks` and `documents` tables already exist in the Journaux database.
+-- Schema (confirmed):
+--   chunks    → id bigint, content text, metadata jsonb, embedding vector
+--   documents → id bigint, content text, metadata jsonb, embedding vector
+--
+-- Only the match_chunks RPC function needs to be created.
+-- Adjust the embedding dimension below if your vectors are not 1536-dim.
 -- ─────────────────────────────────────────────────────────────────────────────
 
-create table if not exists journal_entries (
-  id         bigserial primary key,
-  content    text        not null,
-  embedding  vector(1536),           -- change dimension to match your model
-  metadata   jsonb       not null default '{}',
-  created_at timestamptz not null default now()
-);
-
--- Index for fast ANN search (IVFFlat — tune lists to ~sqrt(row_count))
-create index if not exists journal_entries_embedding_idx
-  on journal_entries
-  using ivfflat (embedding vector_cosine_ops)
-  with (lists = 100);
-
--- ─────────────────────────────────────────────────────────────────────────────
--- Similarity search function
--- Called by the app via supabase.rpc('match_documents', { ... })
--- ─────────────────────────────────────────────────────────────────────────────
-
-create or replace function match_documents(
-  query_embedding  vector(1536),
+create or replace function match_chunks(
+  query_embedding  vector(1536),   -- change to 3072 for text-embedding-3-large
   match_count      int     default 8,
   match_threshold  float   default 0.6
 )
@@ -43,13 +27,13 @@ as $$
 begin
   return query
   select
-    je.id::bigint,
-    je.content,
-    je.metadata,
-    1 - (je.embedding <=> query_embedding) as similarity
-  from journal_entries je
-  where 1 - (je.embedding <=> query_embedding) > match_threshold
-  order by je.embedding <=> query_embedding
+    c.id,
+    c.content,
+    c.metadata,
+    1 - (c.embedding <=> query_embedding) as similarity
+  from chunks c
+  where 1 - (c.embedding <=> query_embedding) > match_threshold
+  order by c.embedding <=> query_embedding
   limit match_count;
 end;
 $$;
