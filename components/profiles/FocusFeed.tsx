@@ -44,7 +44,7 @@ export function FocusFeed({ profile }: FocusFeedProps) {
   return (
     <div className="flex flex-col h-full">
       {/* Header */}
-      <div className="flex items-center justify-between px-6 py-4 border-b border-border">
+      <div className="flex items-center justify-between px-4 lg:px-6 py-3 lg:py-4 border-b border-border shrink-0">
         <div className="flex items-center gap-3">
           <span
             className="w-3 h-3 rounded-full shrink-0"
@@ -73,7 +73,7 @@ export function FocusFeed({ profile }: FocusFeedProps) {
 
       {/* Subject chips */}
       {profile.subjects.length > 0 && (
-        <div className="flex flex-wrap gap-1.5 px-6 py-3 border-b border-border">
+        <div className="flex flex-wrap gap-1.5 px-4 lg:px-6 py-3 border-b border-border shrink-0">
           {profile.subjects.map((s) => (
             <Badge key={s} variant="default">
               {s}
@@ -94,7 +94,7 @@ export function FocusFeed({ profile }: FocusFeedProps) {
           <NoResults />
         ) : (
           <ScrollArea className="h-full">
-            <div className="px-6 py-4 space-y-8 max-w-3xl mx-auto">
+            <div className="px-4 lg:px-6 py-4 space-y-6 lg:space-y-8 max-w-3xl mx-auto">
               {results.map((result) => (
                 <SubjectSection
                   key={result.subject}
@@ -225,7 +225,7 @@ function EmptySubjects() {
 
 function LoadingState() {
   return (
-    <div className="px-6 py-8 space-y-6 max-w-3xl mx-auto">
+    <div className="px-4 lg:px-6 py-6 lg:py-8 space-y-6 max-w-3xl mx-auto">
       {[1, 2, 3].map((i) => (
         <div key={i} className="space-y-2">
           <div className="h-4 w-24 rounded bg-card animate-pulse" />

@@ -15,7 +15,7 @@ export function ChatMessage({ message, isStreaming }: ChatMessageProps) {
   const isUser = message.role === 'user'
 
   return (
-    <div className={cn('flex gap-3 animate-fade-in', isUser && 'flex-row-reverse')}>
+    <div className={cn('flex gap-2 lg:gap-3 animate-fade-in', isUser && 'flex-row-reverse')}>
       {/* Avatar */}
       <div
         className={cn(
@@ -28,7 +28,7 @@ export function ChatMessage({ message, isStreaming }: ChatMessageProps) {
         {isUser ? <User className="w-4 h-4" /> : <Bot className="w-4 h-4" />}
       </div>
 
-      <div className={cn('flex flex-col gap-2 max-w-[85%]', isUser && 'items-end')}>
+      <div className={cn('flex flex-col gap-2 max-w-[90%] lg:max-w-[85%]', isUser && 'items-end')}>
         {/* Bubble */}
         <div
           className={cn(

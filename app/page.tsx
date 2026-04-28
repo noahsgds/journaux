@@ -1,12 +1,14 @@
 'use client'
 
 import React, { useState, useEffect, useCallback } from 'react'
+import { Menu, MessageSquare, Users } from 'lucide-react'
 import { Sidebar } from '@/components/layout/Sidebar'
 import { ChatInterface } from '@/components/chat/ChatInterface'
 import { FocusFeed } from '@/components/profiles/FocusFeed'
 import { ProfileList } from '@/components/profiles/ProfileList'
 import { ProfileEditor } from '@/components/profiles/ProfileEditor'
 import { TooltipProvider } from '@/components/ui/tooltip'
+import { cn } from '@/lib/utils'
 import type { Profile, ProfileCreate } from '@/lib/types'
 
 type Panel = 'chat' | 'feed'
@@ -17,8 +19,18 @@ export default function Home() {
   const [selectedProfileId, setSelectedProfileId] = useState<string | null>(null)
   const [editorOpen, setEditorOpen] = useState(false)
   const [editingProfile, setEditingProfile] = useState<Profile | null>(null)
+  const [sidebarOpen, setSidebarOpen] = useState(false)
 
   const selectedProfile = profiles.find((p) => p.id === selectedProfileId) ?? null
+
+  // Close sidebar on resize to desktop
+  useEffect(() => {
+    const onResize = () => {
+      if (window.innerWidth >= 1024) setSidebarOpen(false)
+    }
+    window.addEventListener('resize', onResize)
+    return () => window.removeEventListener('resize', onResize)
+  }, [])
 
   // ── Load profiles ──────────────────────────────────────────────────────────
   const loadProfiles = useCallback(async () => {
@@ -90,39 +102,72 @@ export default function Home() {
   // ── Render ─────────────────────────────────────────────────────────────────
   return (
     <TooltipProvider>
-      <div className="flex h-screen w-screen overflow-hidden bg-canvas">
-        {/* Left sidebar */}
-        <Sidebar
-          activePanel={activePanel}
-          onPanelChange={setActivePanel}
-          profiles={profiles}
-          selectedProfileId={selectedProfileId}
-          onSelectProfile={setSelectedProfileId}
-          onNewProfile={openNewProfile}
-        />
+      <div className="flex h-[100dvh] w-screen overflow-hidden bg-canvas">
+        {/* Left sidebar — hidden on mobile, visible on lg+ */}
+        <div className="hidden lg:flex lg:shrink-0">
+          <Sidebar
+            activePanel={activePanel}
+            onPanelChange={setActivePanel}
+            profiles={profiles}
+            selectedProfileId={selectedProfileId}
+            onSelectProfile={setSelectedProfileId}
+            onNewProfile={openNewProfile}
+            open={true}
+            onClose={() => {}}
+          />
+        </div>
 
-        {/* Right main panel */}
-        <main className="flex-1 flex flex-col overflow-hidden bg-canvas relative">
-          {/* Subtle top gradient accent */}
-          <div
-            aria-hidden
-            className="pointer-events-none absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-accent/30 to-transparent"
+        {/* Mobile sidebar drawer */}
+        <div className="lg:hidden">
+          <Sidebar
+            activePanel={activePanel}
+            onPanelChange={setActivePanel}
+            profiles={profiles}
+            selectedProfileId={selectedProfileId}
+            onSelectProfile={setSelectedProfileId}
+            onNewProfile={openNewProfile}
+            open={sidebarOpen}
+            onClose={() => setSidebarOpen(false)}
+          />
+        </div>
+
+        {/* Right content area */}
+        <div className="flex flex-col flex-1 overflow-hidden min-w-0">
+          {/* Mobile top header */}
+          <MobileHeader
+            onMenuOpen={() => setSidebarOpen(true)}
+            activePanel={activePanel}
           />
 
-          {activePanel === 'chat' ? (
-            <ChatInterface />
-          ) : (
-            <FeedPanel
-              profiles={profiles}
-              selectedProfile={selectedProfile}
-              selectedProfileId={selectedProfileId}
-              onSelectProfile={setSelectedProfileId}
-              onEdit={openEditProfile}
-              onDelete={handleDeleteProfile}
-              onNew={openNewProfile}
-            />
-          )}
-        </main>
+          {/* Subtle accent line */}
+          <div
+            aria-hidden
+            className="hidden lg:block pointer-events-none h-px bg-gradient-to-r from-transparent via-accent/30 to-transparent shrink-0"
+          />
+
+          {/* Main panel */}
+          <main className="flex-1 overflow-hidden">
+            {activePanel === 'chat' ? (
+              <ChatInterface />
+            ) : (
+              <FeedPanel
+                profiles={profiles}
+                selectedProfile={selectedProfile}
+                selectedProfileId={selectedProfileId}
+                onSelectProfile={setSelectedProfileId}
+                onEdit={openEditProfile}
+                onDelete={handleDeleteProfile}
+                onNew={openNewProfile}
+              />
+            )}
+          </main>
+
+          {/* Mobile bottom tab bar */}
+          <MobileBottomNav
+            activePanel={activePanel}
+            onPanelChange={setActivePanel}
+          />
+        </div>
 
         {/* Profile editor modal */}
         <ProfileEditor
@@ -139,8 +184,90 @@ export default function Home() {
   )
 }
 
+// ─── Mobile Header ────────────────────────────────────────────────────────────
+
+function MobileHeader({
+  onMenuOpen,
+  activePanel,
+}: {
+  onMenuOpen: () => void
+  activePanel: Panel
+}) {
+  return (
+    <header className="lg:hidden flex items-center gap-3 px-4 h-14 border-b border-border bg-surface shrink-0">
+      <button
+        onClick={onMenuOpen}
+        className="p-2 -ml-1 rounded-md text-foreground-muted hover:text-foreground hover:bg-card transition-colors"
+        aria-label="Ouvrir le menu"
+      >
+        <Menu className="w-5 h-5" />
+      </button>
+      <div className="flex items-center gap-2">
+        <span className="font-display font-semibold text-foreground text-base leading-none">
+          VectorLens
+        </span>
+        <span className="text-foreground-dim">·</span>
+        <span className="text-sm text-foreground-muted font-mono">
+          {activePanel === 'chat' ? 'Archives' : 'Profils'}
+        </span>
+      </div>
+    </header>
+  )
+}
+
+// ─── Mobile Bottom Nav ────────────────────────────────────────────────────────
+
+function MobileBottomNav({
+  activePanel,
+  onPanelChange,
+}: {
+  activePanel: Panel
+  onPanelChange: (p: Panel) => void
+}) {
+  return (
+    <nav className="lg:hidden flex border-t border-border bg-surface shrink-0 safe-bottom">
+      <BottomTab
+        icon={<MessageSquare className="w-5 h-5" />}
+        label="Archives"
+        active={activePanel === 'chat'}
+        onClick={() => onPanelChange('chat')}
+      />
+      <BottomTab
+        icon={<Users className="w-5 h-5" />}
+        label="Profils"
+        active={activePanel === 'feed'}
+        onClick={() => onPanelChange('feed')}
+      />
+    </nav>
+  )
+}
+
+function BottomTab({
+  icon,
+  label,
+  active,
+  onClick,
+}: {
+  icon: React.ReactNode
+  label: string
+  active: boolean
+  onClick: () => void
+}) {
+  return (
+    <button
+      onClick={onClick}
+      className={cn(
+        'flex-1 flex flex-col items-center justify-center gap-1 py-3 transition-colors',
+        active ? 'text-accent' : 'text-foreground-dim hover:text-foreground-muted',
+      )}
+    >
+      {icon}
+      <span className="text-[10px] font-mono uppercase tracking-widest">{label}</span>
+    </button>
+  )
+}
+
 // ─── Feed Panel ───────────────────────────────────────────────────────────────
-// Shows the profile grid if no profile selected, or the FocusFeed for the selected profile
 
 interface FeedPanelProps {
   profiles: Profile[]
@@ -164,13 +291,12 @@ function FeedPanel({
   if (selectedProfile) {
     return (
       <div className="flex flex-col h-full">
-        {/* Breadcrumb back to list */}
-        <div className="flex items-center gap-2 px-6 pt-3 pb-0">
+        <div className="flex items-center gap-2 px-4 lg:px-6 pt-3 pb-0 shrink-0">
           <button
             onClick={() => onSelectProfile(null)}
             className="text-xs font-mono text-foreground-dim hover:text-accent transition-colors"
           >
-            ← All profiles
+            ← Tous les profils
           </button>
         </div>
         <FocusFeed profile={selectedProfile} />
@@ -180,8 +306,7 @@ function FeedPanel({
 
   return (
     <div className="flex flex-col h-full">
-      {/* Header */}
-      <div className="px-6 py-4 border-b border-border">
+      <div className="px-4 lg:px-6 py-4 border-b border-border shrink-0">
         <h2 className="font-display font-semibold text-foreground text-lg">
           Profils thématiques
         </h2>
@@ -189,7 +314,6 @@ function FeedPanel({
           Associez des sujets à chaque personne — obtenez un fil classé par pertinence
         </p>
       </div>
-
       <div className="flex-1 overflow-hidden">
         <div className="h-full overflow-y-auto">
           <ProfileList

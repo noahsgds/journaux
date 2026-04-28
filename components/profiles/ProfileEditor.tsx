@@ -72,7 +72,7 @@ export function ProfileEditor({
 
   return (
     <Dialog open={open} onOpenChange={(v) => !v && onClose()}>
-      <DialogContent className="max-w-md">
+      <DialogContent className="w-full max-w-md mx-4 sm:mx-auto">
         <DialogHeader>
           <DialogTitle>
             {editing ? 'Modifier le profil' : 'Nouveau profil'}

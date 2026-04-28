@@ -70,8 +70,8 @@ export function ChatInterface() {
 
   return (
     <div className="flex flex-col h-full">
-      {/* Header */}
-      <div className="flex items-center justify-between px-6 py-4 border-b border-border">
+      {/* Header — desktop only (mobile uses the top bar in page.tsx) */}
+      <div className="hidden lg:flex items-center justify-between px-6 py-4 border-b border-border shrink-0">
         <div>
           <h2 className="font-display font-semibold text-foreground text-lg">
             Archives — Q&amp;R
@@ -92,6 +92,20 @@ export function ChatInterface() {
           </Button>
         )}
       </div>
+      {/* Mobile clear button */}
+      {messages.length > 0 && (
+        <div className="lg:hidden flex justify-end px-4 pt-2 shrink-0">
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => setMessages([])}
+            className="gap-1.5 text-foreground-dim text-xs"
+          >
+            <RotateCcw className="w-3 h-3" />
+            Effacer
+          </Button>
+        </div>
+      )}
 
       {/* Messages */}
       <div className="flex-1 overflow-hidden">
@@ -103,7 +117,7 @@ export function ChatInterface() {
           }} />
         ) : (
           <ScrollArea className="h-full">
-            <div className="px-6 py-6 space-y-6 max-w-3xl mx-auto">
+            <div className="px-3 py-4 lg:px-6 lg:py-6 space-y-5 lg:space-y-6 max-w-3xl mx-auto">
               {enrichedMessages.map((msg, i) => (
                 <ChatMessage
                   key={msg.id}
@@ -136,10 +150,10 @@ export function ChatInterface() {
       </div>
 
       {/* Input */}
-      <div className="border-t border-border px-6 py-4">
+      <div className="border-t border-border px-3 py-3 lg:px-6 lg:py-4 shrink-0">
         <form
           onSubmit={handleSubmit}
-          className="flex items-end gap-3 max-w-3xl mx-auto"
+          className="flex items-end gap-2 lg:gap-3 max-w-3xl mx-auto"
         >
           <div className="flex-1 relative">
             <textarea
@@ -150,11 +164,11 @@ export function ChatInterface() {
               placeholder="Posez une question sur le Carnet…"
               rows={1}
               className={cn(
-                'w-full resize-none rounded-xl border border-border bg-card px-4 py-3 pr-12',
+                'w-full resize-none rounded-xl border border-border bg-card px-3 py-3 lg:px-4',
                 'text-sm text-foreground placeholder:text-foreground-dim',
                 'focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent/30',
                 'transition-all duration-150',
-                'min-h-[48px] max-h-[180px]',
+                'min-h-[48px] max-h-[140px] lg:max-h-[180px]',
               )}
               style={{
                 height: 'auto',
@@ -172,12 +186,12 @@ export function ChatInterface() {
             type="submit"
             disabled={!input.trim() || isLoading}
             size="icon"
-            className="shrink-0 h-12 w-12 rounded-xl"
+            className="shrink-0 h-11 w-11 lg:h-12 lg:w-12 rounded-xl"
           >
             <Send className="w-4 h-4" />
           </Button>
         </form>
-        <p className="text-[10px] font-mono text-foreground-dim text-center mt-2">
+        <p className="hidden lg:block text-[10px] font-mono text-foreground-dim text-center mt-2">
           Entrée pour envoyer · Maj+Entrée pour un saut de ligne
         </p>
       </div>
@@ -206,7 +220,7 @@ function EmptyState({ onPrompt }: { onPrompt: (p: string) => void }) {
         Les réponses sont ancrées dans les extraits récupérés.
       </p>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 w-full max-w-xl">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 w-full max-w-xl px-2 sm:px-0">
         {EXAMPLE_PROMPTS.map((prompt) => (
           <button
             key={prompt}

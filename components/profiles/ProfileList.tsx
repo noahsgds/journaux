@@ -44,7 +44,7 @@ export function ProfileList({
   }
 
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 p-6 content-start">
+    <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-3 p-4 lg:p-6 content-start">
       {profiles.map((profile) => (
         <ProfileCard
           key={profile.id}

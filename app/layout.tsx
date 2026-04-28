@@ -1,11 +1,18 @@
-import type { Metadata } from 'next'
+import type { Metadata, Viewport } from 'next'
 import './globals.css'
 
 export const metadata: Metadata = {
-  title: 'VectorLens — RAG Knowledge Platform',
+  title: 'VectorLens — Archives culturelles',
   description:
-    'Search and explore your journal archive with AI-powered semantic retrieval.',
-  keywords: ['RAG', 'knowledge base', 'journal', 'AI', 'semantic search'],
+    'Explorez les archives du Carnet de la fringale culturelle avec la recherche sémantique IA.',
+}
+
+export const viewport: Viewport = {
+  width: 'device-width',
+  initialScale: 1,
+  maximumScale: 1,
+  userScalable: false,
+  viewportFit: 'cover',
 }
 
 export default function RootLayout({
@@ -14,8 +21,8 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <html lang="en" className="dark">
-      <body className="h-screen overflow-hidden bg-canvas">{children}</body>
+    <html lang="fr" className="dark">
+      <body className="h-[100dvh] overflow-hidden bg-canvas">{children}</body>
     </html>
   )
 }
