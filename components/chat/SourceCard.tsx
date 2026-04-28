@@ -1,9 +1,8 @@
 'use client'
 
 import React, { useState } from 'react'
-import { ChevronDown, ChevronUp, ExternalLink } from 'lucide-react'
-import { cn, formatDate, scoreToPercent, truncate } from '@/lib/utils'
-import { Badge } from '@/components/ui/badge'
+import { ChevronDown, ChevronUp, BookOpen } from 'lucide-react'
+import { cn, truncate, scoreToPercent, parseChunkMeta } from '@/lib/utils'
 import type { JournalChunk } from '@/lib/types'
 
 interface SourceCardProps {
@@ -14,9 +13,8 @@ interface SourceCardProps {
 export function SourceCard({ chunk, index }: SourceCardProps) {
   const [expanded, setExpanded] = useState(false)
   const score = scoreToPercent(chunk.similarity)
-  const date = formatDate(chunk.metadata.date)
-  const title = chunk.metadata.title ?? chunk.metadata.source ?? `Entry ${index + 1}`
-  const preview = truncate(chunk.content, 160)
+  const { source, date, chunkIndex } = parseChunkMeta(chunk.metadata)
+  const preview = truncate(chunk.content, 180)
 
   return (
     <div
@@ -35,22 +33,39 @@ export function SourceCard({ chunk, index }: SourceCardProps) {
         </span>
 
         <div className="flex-1 min-w-0">
-          <div className="flex items-center gap-2 flex-wrap mb-1">
-            <span className="text-sm font-medium text-foreground truncate">
-              {String(title)}
-            </span>
-            {date && (
-              <span className="text-xs font-mono text-foreground-dim shrink-0">
-                {date}
-              </span>
-            )}
+          {/* Source + date header */}
+          <div className="flex items-start justify-between gap-2 mb-1.5">
+            <div className="min-w-0">
+              {source ? (
+                <p className="text-xs font-mono font-medium text-foreground-muted truncate">
+                  <BookOpen className="w-3 h-3 inline mr-1 opacity-60" />
+                  {source}
+                  {chunkIndex !== null && (
+                    <span className="ml-1.5 text-foreground-dim opacity-60">
+                      §{chunkIndex + 1}
+                    </span>
+                  )}
+                </p>
+              ) : (
+                <p className="text-xs font-mono text-foreground-dim">
+                  Extrait {index + 1}
+                </p>
+              )}
+              {date && (
+                <p className="text-[10px] font-mono text-foreground-dim mt-0.5">
+                  {date}
+                </p>
+              )}
+            </div>
           </div>
+
+          {/* Content */}
           <p className="text-xs text-foreground-muted leading-relaxed">
             {expanded ? chunk.content : preview}
           </p>
         </div>
 
-        <div className="flex items-center gap-2 shrink-0 ml-2">
+        <div className="flex items-center gap-2 shrink-0 ml-2 mt-0.5">
           <ScoreBar score={score} />
           {expanded ? (
             <ChevronUp className="w-3.5 h-3.5 text-foreground-dim" />
@@ -59,16 +74,6 @@ export function SourceCard({ chunk, index }: SourceCardProps) {
           )}
         </div>
       </button>
-
-      {expanded && chunk.metadata.tags && Array.isArray(chunk.metadata.tags) && (
-        <div className="px-4 pb-3 flex flex-wrap gap-1.5">
-          {(chunk.metadata.tags as string[]).map((tag) => (
-            <Badge key={tag} variant="secondary">
-              {tag}
-            </Badge>
-          ))}
-        </div>
-      )}
     </div>
   )
 }
@@ -84,7 +89,7 @@ function ScoreBar({ score }: { score: number }) {
           style={{ width: `${score}%`, backgroundColor: color }}
         />
       </div>
-      <span className="text-[10px] font-mono" style={{ color }}>
+      <span className="text-[10px] font-mono tabular-nums" style={{ color }}>
         {score}%
       </span>
     </div>

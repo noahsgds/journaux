@@ -36,7 +36,7 @@ export function Sidebar({
             VectorLens
           </h1>
           <p className="text-[10px] font-mono text-foreground-dim mt-0.5 uppercase tracking-widest">
-            RAG Platform
+            Archives culturelles
           </p>
         </div>
       </div>
@@ -45,13 +45,13 @@ export function Sidebar({
       <nav className="px-3 pt-4 space-y-0.5">
         <NavItem
           icon={<MessageSquare className="w-4 h-4" />}
-          label="Journal Q&A"
+          label="Archives — Q&R"
           active={activePanel === 'chat'}
           onClick={() => onPanelChange('chat')}
         />
         <NavItem
           icon={<Users className="w-4 h-4" />}
-          label="Subject Profiles"
+          label="Profils thématiques"
           active={activePanel === 'feed'}
           onClick={() => onPanelChange('feed')}
         />
@@ -63,20 +63,20 @@ export function Sidebar({
       <div className="flex-1 overflow-hidden flex flex-col">
         <div className="flex items-center justify-between px-4 mb-2">
           <span className="text-[10px] font-mono text-foreground-dim uppercase tracking-widest">
-            Profiles
+            Profils
           </span>
           <button
             onClick={onNewProfile}
             className="text-xs font-mono text-accent hover:text-accent-hover transition-colors"
           >
-            + New
+            + Nouveau
           </button>
         </div>
 
         <div className="flex-1 overflow-y-auto px-3 space-y-0.5 pb-4">
           {profiles.length === 0 ? (
             <p className="px-2 py-3 text-xs text-foreground-dim font-mono">
-              No profiles yet.
+              Aucun profil pour l'instant.
             </p>
           ) : (
             profiles.map((profile) => (

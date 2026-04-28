@@ -75,7 +75,7 @@ export function ProfileEditor({
       <DialogContent className="max-w-md">
         <DialogHeader>
           <DialogTitle>
-            {editing ? 'Edit Profile' : 'New Profile'}
+            {editing ? 'Modifier le profil' : 'Nouveau profil'}
           </DialogTitle>
         </DialogHeader>
 
@@ -83,12 +83,12 @@ export function ProfileEditor({
           {/* Name */}
           <div className="space-y-1.5">
             <label className="text-xs font-mono text-foreground-dim uppercase tracking-widest">
-              Name
+              Nom
             </label>
             <Input
               value={name}
               onChange={(e) => setName(e.target.value)}
-              placeholder="e.g. Alex Rivera"
+              placeholder="ex. Marie Dupont"
               autoFocus
             />
           </div>
@@ -96,7 +96,7 @@ export function ProfileEditor({
           {/* Color */}
           <div className="space-y-1.5">
             <label className="text-xs font-mono text-foreground-dim uppercase tracking-widest">
-              Color
+              Couleur
             </label>
             <div className="flex gap-2">
               {PROFILE_COLORS.map((c) => (
@@ -119,13 +119,13 @@ export function ProfileEditor({
           {/* Subjects */}
           <div className="space-y-1.5">
             <label className="text-xs font-mono text-foreground-dim uppercase tracking-widest">
-              Subjects of interest
+              Sujets d'intérêt
             </label>
             <div className="flex gap-2">
               <Input
                 value={subjectInput}
                 onChange={(e) => setSubjectInput(e.target.value)}
-                placeholder="e.g. housing, labor, climate"
+                placeholder="ex. théâtre, expositions, musique"
                 onKeyDown={(e) => {
                   if (e.key === 'Enter' || e.key === ',') {
                     e.preventDefault()
@@ -143,7 +143,7 @@ export function ProfileEditor({
               </Button>
             </div>
             <p className="text-[10px] font-mono text-foreground-dim">
-              Press Enter or comma to add
+              Entrée ou virgule pour ajouter
             </p>
 
             {subjects.length > 0 && (
@@ -169,10 +169,10 @@ export function ProfileEditor({
 
         <DialogFooter>
           <Button variant="ghost" onClick={onClose} disabled={saving}>
-            Cancel
+            Annuler
           </Button>
           <Button onClick={handleSave} disabled={!name.trim() || saving}>
-            {saving ? 'Saving…' : editing ? 'Update' : 'Create'}
+            {saving ? 'Enregistrement…' : editing ? 'Mettre à jour' : 'Créer'}
           </Button>
         </DialogFooter>
       </DialogContent>

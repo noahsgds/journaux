@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useCallback } from 'react'
 import { RefreshCw, ChevronDown, ChevronUp, Zap } from 'lucide-react'
-import { cn, formatDate, scoreToPercent, truncate } from '@/lib/utils'
+import { cn, scoreToPercent, truncate, parseChunkMeta } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { ScrollArea } from '@/components/ui/scroll-area'
@@ -55,7 +55,7 @@ export function FocusFeed({ profile }: FocusFeedProps) {
               {profile.name}
             </h2>
             <p className="text-xs font-mono text-foreground-dim mt-0.5">
-              Focus feed — {profile.subjects.length} subjects
+              Fil thématique — {profile.subjects.length} sujet{profile.subjects.length !== 1 ? 's' : ''}
             </p>
           </div>
         </div>
@@ -67,7 +67,7 @@ export function FocusFeed({ profile }: FocusFeedProps) {
           className="gap-1.5"
         >
           <RefreshCw className={cn('w-3.5 h-3.5', loading && 'animate-spin')} />
-          Refresh
+          Actualiser
         </Button>
       </div>
 
@@ -128,13 +128,13 @@ function SubjectSection({
           {result.subject}
         </h3>
         <span className="text-xs font-mono text-foreground-dim">
-          {result.chunks.length} passages
+          {result.chunks.length} extrait{result.chunks.length !== 1 ? 's' : ''}
         </span>
       </div>
 
       {result.chunks.length === 0 ? (
         <p className="text-sm text-foreground-dim pl-3">
-          No relevant passages found for this subject.
+          Aucun extrait pertinent trouvé pour ce sujet.
         </p>
       ) : (
         <div className="space-y-2">
@@ -156,9 +156,7 @@ function FeedChunkCard({
 }) {
   const [expanded, setExpanded] = useState(false)
   const score = scoreToPercent(chunk.similarity)
-  const date = formatDate(chunk.metadata.date)
-  const title =
-    chunk.metadata.title ?? chunk.metadata.source ?? `Passage ${index + 1}`
+  const { source, date, chunkIndex } = parseChunkMeta(chunk.metadata)
 
   return (
     <div
@@ -179,7 +177,10 @@ function FeedChunkCard({
               </span>
             )}
             <span className="text-xs font-medium text-foreground-muted truncate">
-              {String(title)}
+              {source || `Passage ${index + 1}`}
+              {chunkIndex !== null && (
+                <span className="ml-1 opacity-50">§{chunkIndex + 1}</span>
+              )}
             </span>
           </div>
           <p className="text-sm text-foreground-muted leading-relaxed">
@@ -216,7 +217,7 @@ function EmptySubjects() {
     <div className="flex flex-col items-center justify-center h-full gap-3">
       <Zap className="w-8 h-8 text-foreground-dim" />
       <p className="text-sm text-foreground-muted">
-        Add subjects to this profile to see relevant passages.
+        Ajoutez des sujets à ce profil pour voir les extraits pertinents.
       </p>
     </div>
   )
@@ -248,9 +249,9 @@ function ErrorState({
 }) {
   return (
     <div className="flex flex-col items-center justify-center h-full gap-3">
-      <p className="text-sm text-red-400">Error: {message}</p>
+      <p className="text-sm text-red-400">Erreur : {message}</p>
       <Button variant="secondary" size="sm" onClick={onRetry}>
-        Retry
+        Réessayer
       </Button>
     </div>
   )
@@ -260,7 +261,7 @@ function NoResults() {
   return (
     <div className="flex flex-col items-center justify-center h-full">
       <p className="text-sm text-foreground-muted">
-        No matching passages found. Try broadening your subjects.
+        Aucun extrait trouvé. Essayez d'élargir vos sujets.
       </p>
     </div>
   )

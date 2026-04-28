@@ -1,20 +1,44 @@
 import { clsx, type ClassValue } from 'clsx'
 import { twMerge } from 'tailwind-merge'
+import type { ChunkMetadata } from './types'
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
 }
 
+// French dates ("28 Avril 2026") are kept as-is; ISO dates are reformatted
 export function formatDate(dateStr: string | undefined): string {
   if (!dateStr) return ''
+  // Already looks like a formatted French date — return directly
+  if (/^\d{1,2}\s+\w+\s+\d{4}$/.test(dateStr.trim())) return dateStr.trim()
   try {
-    return new Intl.DateTimeFormat('en-US', {
+    return new Intl.DateTimeFormat('fr-FR', {
       year: 'numeric',
-      month: 'short',
+      month: 'long',
       day: 'numeric',
     }).format(new Date(dateStr))
   } catch {
     return dateStr
+  }
+}
+
+// Safely extract display fields from the three metadata shapes
+export function parseChunkMeta(metadata: ChunkMetadata): {
+  source: string
+  date: string
+  chunkIndex: number | null
+} {
+  if (!metadata) {
+    return { source: '', date: '', chunkIndex: null }
+  }
+  if (typeof metadata === 'string') {
+    // Legacy: raw concatenated string — use as source label
+    return { source: metadata.trim(), date: '', chunkIndex: null }
+  }
+  return {
+    source: metadata.source ?? '',
+    date: metadata.date ?? '',
+    chunkIndex: metadata.chunk_index ?? null,
   }
 }
 

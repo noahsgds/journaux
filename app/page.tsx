@@ -70,7 +70,7 @@ export default function Home() {
   )
 
   const handleDeleteProfile = useCallback(async (id: string) => {
-    const confirmed = window.confirm('Delete this profile?')
+    const confirmed = window.confirm('Supprimer ce profil ?')
     if (!confirmed) return
     await fetch(`/api/profiles/${id}`, { method: 'DELETE' })
     setProfiles((prev) => prev.filter((p) => p.id !== id))
@@ -183,10 +183,10 @@ function FeedPanel({
       {/* Header */}
       <div className="px-6 py-4 border-b border-border">
         <h2 className="font-display font-semibold text-foreground text-lg">
-          Subject Profiles
+          Profils thématiques
         </h2>
         <p className="text-xs font-mono text-foreground-dim mt-0.5">
-          Define interest areas per person — get a ranked focus feed
+          Associez des sujets à chaque personne — obtenez un fil classé par pertinence
         </p>
       </div>
 

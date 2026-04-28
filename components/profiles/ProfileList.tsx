@@ -31,13 +31,13 @@ export function ProfileList({
           <Users className="w-5 h-5 text-foreground-dim" />
         </div>
         <div className="text-center">
-          <p className="text-sm font-medium text-foreground">No profiles yet</p>
+          <p className="text-sm font-medium text-foreground">Aucun profil</p>
           <p className="text-xs text-foreground-muted mt-1">
-            Create a profile to assign subjects and see focused feeds
+            Créez un profil pour associer des sujets et voir un fil thématique
           </p>
         </div>
         <Button onClick={onNew} size="sm">
-          Create first profile
+          Créer le premier profil
         </Button>
       </div>
     )
@@ -67,7 +67,7 @@ export function ProfileList({
         )}
       >
         <span className="text-2xl font-light">+</span>
-        New profile
+        Nouveau profil
       </button>
     </div>
   )
@@ -156,12 +156,12 @@ function ProfileCard({
           )}
         </div>
       ) : (
-        <p className="text-xs text-foreground-dim italic">No subjects assigned</p>
+        <p className="text-xs text-foreground-dim italic">Aucun sujet assigné</p>
       )}
 
       <div className="flex items-center justify-between mt-auto pt-1">
         <span className="text-[10px] font-mono text-foreground-dim">
-          {profile.subjects.length} subject{profile.subjects.length !== 1 ? 's' : ''}
+          {profile.subjects.length} sujet{profile.subjects.length !== 1 ? 's' : ''}
         </span>
         <button
           onClick={(e) => {
@@ -170,7 +170,7 @@ function ProfileCard({
           }}
           className="text-[10px] font-mono text-accent hover:text-accent-hover transition-colors"
         >
-          View feed →
+          Voir le fil →
         </button>
       </div>
     </div>

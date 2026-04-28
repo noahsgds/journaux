@@ -49,7 +49,7 @@ export function ChatMessage({ message, isStreaming }: ChatMessageProps) {
         {!isUser && message.sources && message.sources.length > 0 && (
           <div className="w-full space-y-1.5">
             <p className="text-[10px] font-mono text-foreground-dim uppercase tracking-widest px-1">
-              Retrieved sources
+              Extraits récupérés
             </p>
             {message.sources.map((chunk, i) => (
               <SourceCard key={chunk.id} chunk={chunk} index={i} />

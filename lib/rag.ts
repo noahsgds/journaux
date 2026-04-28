@@ -1,7 +1,8 @@
 import { embed } from 'ai'
 import { openai } from '@ai-sdk/openai'
 import { matchDocuments, type MatchResult } from './supabase'
-import type { JournalChunk } from './types'
+import { parseChunkMeta } from './utils'
+import type { JournalChunk, ChunkMetadata } from './types'
 
 const EMBEDDING_MODEL = process.env.EMBEDDING_MODEL ?? 'text-embedding-3-small'
 const EMBEDDING_DIMENSIONS = parseInt(
@@ -51,29 +52,30 @@ export async function retrieveChunksForSubjects(
 
 export function buildSystemPrompt(chunks: JournalChunk[]): string {
   if (chunks.length === 0) {
-    return `You are VectorLens, an intelligent research assistant for journal archives.
-Answer questions thoughtfully. If you don't have relevant context, say so honestly.`
+    return `Tu es VectorLens, un assistant de recherche spécialisé dans les archives du journal "Le Carnet de la fringale culturelle".
+Réponds de manière précise et honnête. Si tu n'as pas assez de contexte, dis-le clairement.`
   }
 
   const contextBlock = chunks
     .map((c, i) => {
+      const { source, date } = parseChunkMeta(c.metadata)
       const meta = [
-        c.metadata.date ? `Date: ${c.metadata.date}` : '',
-        c.metadata.source ? `Source: ${c.metadata.source}` : '',
+        source ? `Source : ${source}` : '',
+        date ? `Date : ${date}` : '',
       ]
         .filter(Boolean)
         .join(' | ')
-      return `[Source ${i + 1}${meta ? ` — ${meta}` : ''}]\n${c.content}`
+      return `[Extrait ${i + 1}${meta ? ` — ${meta}` : ''}]\n${c.content}`
     })
     .join('\n\n---\n\n')
 
-  return `You are VectorLens, an intelligent research assistant with access to a curated archive of journal entries.
+  return `Tu es VectorLens, un assistant de recherche avec accès aux archives de "Le Carnet de la fringale culturelle".
 
-Use the following retrieved journal excerpts to answer the user's question. Cite sources by their number (e.g., [1], [2]) when you use them. Be precise and grounded in the provided context.
+Utilise les extraits de journal ci-dessous pour répondre à la question de l'utilisateur. Cite les sources par leur numéro (ex. [1], [2]) lorsque tu les utilises. Sois précis et ancré dans le contexte fourni.
 
-If the context doesn't contain enough information to answer fully, say so and share what you can infer.
+Si le contexte ne permet pas de répondre complètement, indique-le et partage ce que tu peux inférer.
 
-## Retrieved Context
+## Extraits récupérés
 
 ${contextBlock}`
 }
@@ -85,6 +87,6 @@ function toJournalChunk(r: MatchResult): JournalChunk {
     id: String(r.id),
     content: r.content,
     similarity: r.similarity,
-    metadata: (r.metadata as JournalChunk['metadata']) ?? {},
+    metadata: (r.metadata as ChunkMetadata) ?? null,
   }
 }

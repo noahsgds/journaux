@@ -74,10 +74,10 @@ export function ChatInterface() {
       <div className="flex items-center justify-between px-6 py-4 border-b border-border">
         <div>
           <h2 className="font-display font-semibold text-foreground text-lg">
-            Journal Q&A
+            Archives — Q&amp;R
           </h2>
           <p className="text-xs font-mono text-foreground-dim mt-0.5">
-            Ask anything — grounded in your journal archive
+            Posez une question, ancrée dans le Carnet
           </p>
         </div>
         {messages.length > 0 && (
@@ -88,7 +88,7 @@ export function ChatInterface() {
             className="gap-1.5 text-foreground-dim"
           >
             <RotateCcw className="w-3.5 h-3.5" />
-            Clear
+            Effacer
           </Button>
         )}
       </div>
@@ -147,7 +147,7 @@ export function ChatInterface() {
               value={input}
               onChange={handleInputChange}
               onKeyDown={handleKeyDown}
-              placeholder="Ask about your journal entries…"
+              placeholder="Posez une question sur le Carnet…"
               rows={1}
               className={cn(
                 'w-full resize-none rounded-xl border border-border bg-card px-4 py-3 pr-12',
@@ -178,7 +178,7 @@ export function ChatInterface() {
           </Button>
         </form>
         <p className="text-[10px] font-mono text-foreground-dim text-center mt-2">
-          Enter to send · Shift+Enter for newline
+          Entrée pour envoyer · Maj+Entrée pour un saut de ligne
         </p>
       </div>
     </div>
@@ -186,10 +186,10 @@ export function ChatInterface() {
 }
 
 const EXAMPLE_PROMPTS = [
-  'What recurring themes appear across multiple entries?',
-  'Summarize entries related to housing and urban development',
-  'What does the journal say about labor movements?',
-  'Find passages mentioning environmental concerns',
+  'Quels sont les thèmes récurrents dans les entrées du carnet ?',
+  'Que dit le carnet sur la vie culturelle parisienne ?',
+  'Résume les passages sur les expositions artistiques',
+  'Quelles personnalités sont mentionnées dans les archives ?',
 ]
 
 function EmptyState({ onPrompt }: { onPrompt: (p: string) => void }) {
@@ -199,11 +199,11 @@ function EmptyState({ onPrompt }: { onPrompt: (p: string) => void }) {
         <Sparkles className="w-6 h-6 text-accent" />
       </div>
       <h3 className="font-display text-xl font-semibold text-foreground mb-2">
-        Ask your journal archive
+        Interroge le Carnet de la fringale culturelle
       </h3>
       <p className="text-sm text-foreground-muted text-center max-w-sm mb-8">
-        Questions are embedded and matched against the full vector index.
-        Answers are grounded in retrieved excerpts.
+        Chaque question est vectorisée et comparée à l'index complet des archives.
+        Les réponses sont ancrées dans les extraits récupérés.
       </p>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 w-full max-w-xl">

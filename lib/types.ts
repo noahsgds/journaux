@@ -1,16 +1,23 @@
 // ─── Document / RAG ───────────────────────────────────────────────────────────
 
+// Metadata from the `chunks` table in Journaux
+// Three shapes exist: structured object | raw string | null
+export type ChunkMetadata =
+  | {
+      date?: string         // e.g. "28 Avril 2026"
+      source?: string       // e.g. "Le Carnet de la fringale culturelle N164"
+      chunk_index?: number
+      chars?: number
+      [key: string]: unknown
+    }
+  | string   // legacy: source+date concatenated
+  | null
+
 export interface JournalChunk {
   id: string
   content: string
   similarity: number
-  metadata: {
-    date?: string
-    source?: string
-    title?: string
-    tags?: string[]
-    [key: string]: unknown
-  }
+  metadata: ChunkMetadata
 }
 
 export interface ChatMessage {
