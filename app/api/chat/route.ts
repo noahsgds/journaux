@@ -1,5 +1,6 @@
 import { streamText, StreamData } from 'ai'
 import type { CoreMessage } from 'ai'
+import { createOpenAI } from '@ai-sdk/openai'
 import { google } from '@ai-sdk/google'
 import { retrieveChunks, buildSystemPrompt } from '@/lib/rag'
 import type { JournalChunk } from '@/lib/types'
@@ -7,11 +8,33 @@ import type { JournalChunk } from '@/lib/types'
 export const runtime = 'nodejs'
 export const maxDuration = 60
 
+// Resolve the generation model and provider.
+// Priority: GROQ_API_KEY (free) → groq/llama  |  GOOGLE_GENERATIVE_AI_API_KEY → gemini
+function resolveModel() {
+  if (process.env.GROQ_API_KEY) {
+    // Groq exposes an OpenAI-compatible API — no extra SDK needed
+    const groq = createOpenAI({
+      baseURL: 'https://api.groq.com/openai/v1',
+      apiKey: process.env.GROQ_API_KEY,
+    })
+    const modelId = process.env.GROQ_MODEL ?? 'llama-3.3-70b-versatile'
+    return groq(modelId)
+  }
+  if (process.env.GOOGLE_GENERATIVE_AI_API_KEY) {
+    const modelId = process.env.GENERATION_MODEL ?? 'gemini-2.0-flash'
+    return google(modelId)
+  }
+  return null
+}
+
 export async function POST(req: Request) {
-  // Guard: API key must be present
-  if (!process.env.GOOGLE_GENERATIVE_AI_API_KEY) {
+  const model = resolveModel()
+  if (!model) {
     return new Response(
-      JSON.stringify({ error: 'GOOGLE_GENERATIVE_AI_API_KEY manquant. Configurez la variable dans Vercel ou .env.local.' }),
+      JSON.stringify({
+        error:
+          'Aucune clé API configurée. Ajoutez GROQ_API_KEY (gratuit sur console.groq.com) ou GOOGLE_GENERATIVE_AI_API_KEY dans les variables Vercel.',
+      }),
       { status: 500, headers: { 'Content-Type': 'application/json' } },
     )
   }
@@ -47,11 +70,9 @@ export async function POST(req: Request) {
   const data = new StreamData()
   data.append(JSON.parse(JSON.stringify({ sources: chunks })))
 
-  const model = process.env.GENERATION_MODEL ?? 'gemini-2.0-flash'
-
   try {
     const result = await streamText({
-      model: google(model),
+      model,
       system: systemPrompt,
       messages,
       temperature: 0.3,
