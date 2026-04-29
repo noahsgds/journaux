@@ -64,7 +64,7 @@ export function ChatMessage({ message, isStreaming }: ChatMessageProps) {
         )}
         {!isUser && message.ragError && (
           <p className="text-[10px] font-mono text-rouge/70 px-1">
-            Archives inaccessibles (quota Google embedding) — réponse sans contexte.
+            Archives inaccessibles (clé API manquante ou quota dépassé) — réponse sans contexte.
           </p>
         )}
       </div>
