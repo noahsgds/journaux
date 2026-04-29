@@ -50,8 +50,12 @@ export function ChatInterface() {
     ) {
       const lastData = streamData[streamData.length - 1] as {
         sources?: JournalChunk[]
+        ragError?: string
+        ragWorked?: boolean
       }
       if (lastData?.sources) base.sources = lastData.sources
+      if (lastData?.ragError) base.ragError = lastData.ragError
+      if (lastData?.ragWorked !== undefined) base.ragWorked = lastData.ragWorked
     }
     return base
   })

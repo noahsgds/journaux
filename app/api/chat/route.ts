@@ -58,17 +58,23 @@ export async function POST(req: Request) {
 
   // RAG retrieval — failure is non-fatal, generation continues without context
   let chunks: JournalChunk[] = []
+  let ragError: string | null = null
   try {
     if (lastUserMessage?.content) {
       chunks = await retrieveChunks(lastUserMessage.content, 8, 0.55)
     }
   } catch (err) {
-    console.error('[TomKiosque] RAG retrieval failed:', err)
+    ragError = err instanceof Error ? err.message : 'Erreur de récupération RAG'
+    console.error('[TomKiosque] RAG retrieval failed:', ragError)
   }
 
   const systemPrompt = buildSystemPrompt(chunks)
   const data = new StreamData()
-  data.append(JSON.parse(JSON.stringify({ sources: chunks })))
+  data.append(JSON.parse(JSON.stringify({
+    sources: chunks,
+    ragError: ragError ?? undefined,
+    ragWorked: chunks.length > 0,
+  })))
 
   try {
     const result = await streamText({

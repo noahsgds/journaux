@@ -55,6 +55,18 @@ export function ChatMessage({ message, isStreaming }: ChatMessageProps) {
             ))}
           </div>
         )}
+
+        {/* No RAG context badge */}
+        {!isUser && message.ragWorked === false && !message.ragError && (
+          <p className="text-[10px] font-mono text-foreground-dim px-1 italic">
+            Aucun article trouvé dans les archives — réponse basée sur les connaissances du modèle.
+          </p>
+        )}
+        {!isUser && message.ragError && (
+          <p className="text-[10px] font-mono text-rouge/70 px-1">
+            Archives inaccessibles (quota Google embedding) — réponse sans contexte.
+          </p>
+        )}
       </div>
     </div>
   )

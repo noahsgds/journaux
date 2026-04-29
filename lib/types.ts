@@ -25,6 +25,8 @@ export interface ChatMessage {
   role: 'user' | 'assistant'
   content: string
   sources?: JournalChunk[]
+  ragError?: string
+  ragWorked?: boolean
   createdAt: Date
 }
 

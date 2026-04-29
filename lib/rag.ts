@@ -54,8 +54,9 @@ export async function retrieveChunksForSubjects(
 
 export function buildSystemPrompt(chunks: JournalChunk[]): string {
   if (chunks.length === 0) {
-    return `Tu es TomKiosque, un assistant d'analyse de presse spécialisé dans la revue des archives de presse.
-Réponds de manière précise et factuelle. Si tu n'as pas assez de contexte, indique-le clairement.`
+    return `Tu es TomKiosque, un assistant d'analyse de presse.
+Réponds à la question de l'utilisateur de manière précise et utile, en te basant sur tes connaissances générales.
+Indique brièvement en fin de réponse que la recherche dans les archives n'a pas retourné de résultats pour cette question, et que la réponse est donc issue de tes connaissances générales.`
   }
 
   const contextBlock = chunks
