@@ -1,13 +1,12 @@
 import { embed } from 'ai'
-import { google } from '@ai-sdk/google'
+import { openai } from '@ai-sdk/openai'
 import { matchDocuments, type MatchResult } from './supabase'
 import { parseChunkMeta } from './utils'
 import type { JournalChunk, ChunkMetadata } from './types'
 
-// Embeddings: gemini-embedding-2 (3072 dims) must match the model used by the
-// n8n pipeline that populated the chunks table.
-// Generation: Google Gemini via GOOGLE_GENERATIVE_AI_API_KEY.
-const EMBEDDING_MODEL = process.env.EMBEDDING_MODEL ?? 'gemini-embedding-2'
+// Embeddings: OpenAI text-embedding-3-large (3072 dims) — must match the model
+// used by the n8n pipeline that populates the chunks table.
+const EMBEDDING_MODEL = process.env.EMBEDDING_MODEL ?? 'text-embedding-3-large'
 const EMBEDDING_DIMENSIONS = parseInt(
   process.env.EMBEDDING_DIMENSIONS ?? '3072',
   10,
@@ -17,8 +16,8 @@ const EMBEDDING_DIMENSIONS = parseInt(
 
 export async function getEmbedding(text: string): Promise<number[]> {
   const { embedding } = await embed({
-    model: google.textEmbeddingModel(EMBEDDING_MODEL, {
-      outputDimensionality: EMBEDDING_DIMENSIONS,
+    model: openai.embedding(EMBEDDING_MODEL, {
+      dimensions: EMBEDDING_DIMENSIONS,
     }),
     value: text.replace(/\n+/g, ' ').trim(),
   })
