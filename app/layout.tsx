@@ -2,9 +2,9 @@ import type { Metadata, Viewport } from 'next'
 import './globals.css'
 
 export const metadata: Metadata = {
-  title: 'VectorLens — Archives culturelles',
+  title: 'TomKiosque — Analyse de presse',
   description:
-    'Explorez les archives du Carnet de la fringale culturelle avec la recherche sémantique IA.',
+    'Interrogez les archives de presse avec la recherche sémantique IA.',
 }
 
 export const viewport: Viewport = {
@@ -21,7 +21,7 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <html lang="fr" className="dark">
+    <html lang="fr">
       <body className="h-[100dvh] overflow-hidden bg-canvas">{children}</body>
     </html>
   )

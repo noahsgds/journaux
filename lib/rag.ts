@@ -54,8 +54,8 @@ export async function retrieveChunksForSubjects(
 
 export function buildSystemPrompt(chunks: JournalChunk[]): string {
   if (chunks.length === 0) {
-    return `Tu es VectorLens, un assistant de recherche spécialisé dans les archives du journal "Le Carnet de la fringale culturelle".
-Réponds de manière précise et honnête. Si tu n'as pas assez de contexte, dis-le clairement.`
+    return `Tu es TomKiosque, un assistant d'analyse de presse spécialisé dans la revue des archives de presse.
+Réponds de manière précise et factuelle. Si tu n'as pas assez de contexte, indique-le clairement.`
   }
 
   const contextBlock = chunks
@@ -67,13 +67,13 @@ Réponds de manière précise et honnête. Si tu n'as pas assez de contexte, dis
       ]
         .filter(Boolean)
         .join(' | ')
-      return `[Extrait ${i + 1}${meta ? ` — ${meta}` : ''}]\n${c.content}`
+      return `[Article ${i + 1}${meta ? ` — ${meta}` : ''}]\n${c.content}`
     })
     .join('\n\n---\n\n')
 
-  return `Tu es VectorLens, un assistant de recherche avec accès aux archives de "Le Carnet de la fringale culturelle".
+  return `Tu es TomKiosque, un assistant d'analyse de presse avec accès aux archives de la revue de presse.
 
-Utilise les extraits de journal ci-dessous pour répondre à la question de l'utilisateur. Cite les sources par leur numéro (ex. [1], [2]) lorsque tu les utilises. Sois précis et ancré dans le contexte fourni.
+Utilise les extraits d'articles ci-dessous pour répondre à la question. Cite les sources par leur numéro (ex. [1], [2]) lorsque tu les utilises. Sois précis, factuel et ancré dans le contexte fourni.
 
 Si le contexte ne permet pas de répondre complètement, indique-le et partage ce que tu peux inférer.
 

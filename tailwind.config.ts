@@ -17,39 +17,38 @@ const config: Config = {
     },
     extend: {
       colors: {
-        // Brand palette
-        canvas: '#09090f',
-        surface: '#111118',
-        panel: '#16161f',
-        card: '#1c1c28',
-        border: '#2a2a3a',
-        muted: '#3a3a50',
+        // Le Monde editorial palette
+        canvas: '#F5F4F0',        // warm newsprint off-white
+        surface: '#FFFFFF',       // pure white
+        panel: '#EFEEE9',         // light warm gray
+        card: '#F8F7F3',          // near-white cards
+        border: '#D5D4CE',        // light warm dividers
+        muted: '#AEADA7',         // muted borders
         accent: {
-          DEFAULT: '#3B82F6',
-          hover: '#60a5fa',
-          dim: '#1d4ed8',
-          glow: 'rgba(59,130,246,0.15)',
+          DEFAULT: '#003189',     // Le Monde signature navy
+          hover: '#0044C9',
+          dim: '#001F5C',
+          glow: 'rgba(0,49,137,0.08)',
         },
-        amber: {
-          DEFAULT: '#F59E0B',
-          hover: '#fbbf24',
-          dim: '#b45309',
-          glow: 'rgba(245,158,11,0.15)',
+        rouge: {
+          DEFAULT: '#B72025',     // Le Monde red
+          hover: '#E53035',
+          dim: '#7A1518',
         },
         // Semantic
-        foreground: '#e8e8f0',
-        'foreground-muted': '#8888a8',
-        'foreground-dim': '#555570',
+        foreground: '#1A1918',
+        'foreground-muted': '#57564F',
+        'foreground-dim': '#98968F',
       },
       fontFamily: {
-        display: ['Playfair Display', 'Georgia', 'serif'],
-        mono: ['JetBrains Mono', 'Fira Code', 'monospace'],
-        sans: ['system-ui', 'sans-serif'],
+        display: ['"Playfair Display"', 'Georgia', 'serif'],
+        sans: ['Inter', 'system-ui', 'sans-serif'],
+        mono: ['"JetBrains Mono"', '"Courier New"', 'monospace'],
       },
       borderRadius: {
-        lg: 'var(--radius)',
-        md: 'calc(var(--radius) - 2px)',
-        sm: 'calc(var(--radius) - 4px)',
+        lg: '0.25rem',
+        md: '0.125rem',
+        sm: '0',
       },
       keyframes: {
         'accordion-down': {
@@ -68,10 +67,6 @@ const config: Config = {
           from: { opacity: '0', transform: 'translateX(-8px)' },
           to: { opacity: '1', transform: 'translateX(0)' },
         },
-        shimmer: {
-          '0%': { backgroundPosition: '-200% 0' },
-          '100%': { backgroundPosition: '200% 0' },
-        },
         pulse: {
           '0%, 100%': { opacity: '1' },
           '50%': { opacity: '0.4' },
@@ -82,13 +77,7 @@ const config: Config = {
         'accordion-up': 'accordion-up 0.2s ease-out',
         'fade-in': 'fade-in 0.3s ease-out',
         'slide-in': 'slide-in 0.25s ease-out',
-        shimmer: 'shimmer 2s linear infinite',
         pulse: 'pulse 2s cubic-bezier(0.4,0,0.6,1) infinite',
-      },
-      backgroundImage: {
-        'gradient-radial': 'radial-gradient(var(--tw-gradient-stops))',
-        shimmer:
-          'linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.04) 50%, transparent 100%)',
       },
     },
   },

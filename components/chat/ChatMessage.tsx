@@ -1,7 +1,6 @@
 'use client'
 
 import React from 'react'
-import { Bot, User } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { SourceCard } from './SourceCard'
 import type { ChatMessage as ChatMessageType } from '@/lib/types'
@@ -15,27 +14,27 @@ export function ChatMessage({ message, isStreaming }: ChatMessageProps) {
   const isUser = message.role === 'user'
 
   return (
-    <div className={cn('flex gap-2 lg:gap-3 animate-fade-in', isUser && 'flex-row-reverse')}>
-      {/* Avatar */}
+    <div className={cn('flex gap-3 animate-fade-in', isUser && 'flex-row-reverse')}>
+      {/* Role badge */}
       <div
         className={cn(
-          'shrink-0 w-8 h-8 rounded-md flex items-center justify-center border mt-0.5',
+          'shrink-0 w-7 h-7 flex items-center justify-center mt-0.5 text-[10px] font-mono font-bold border',
           isUser
-            ? 'bg-surface border-border text-foreground-muted'
-            : 'bg-accent/15 border-accent/30 text-accent',
+            ? 'bg-canvas border-border text-foreground-dim'
+            : 'bg-accent text-white border-accent',
         )}
       >
-        {isUser ? <User className="w-4 h-4" /> : <Bot className="w-4 h-4" />}
+        {isUser ? 'Q' : 'A'}
       </div>
 
       <div className={cn('flex flex-col gap-2 max-w-[90%] lg:max-w-[85%]', isUser && 'items-end')}>
-        {/* Bubble */}
+        {/* Message content */}
         <div
           className={cn(
-            'rounded-xl px-4 py-3 text-sm leading-relaxed',
+            'px-4 py-3 text-sm leading-relaxed',
             isUser
-              ? 'bg-card border border-border text-foreground rounded-tr-sm'
-              : 'bg-surface border border-border text-foreground rounded-tl-sm',
+              ? 'bg-panel border border-border text-foreground'
+              : 'bg-surface border-l-[3px] border-l-accent border-t border-t-border border-r border-r-border border-b border-b-border text-foreground',
           )}
         >
           {message.content ? (
@@ -49,7 +48,7 @@ export function ChatMessage({ message, isStreaming }: ChatMessageProps) {
         {!isUser && message.sources && message.sources.length > 0 && (
           <div className="w-full space-y-1.5">
             <p className="text-[10px] font-mono text-foreground-dim uppercase tracking-widest px-1">
-              Extraits récupérés
+              Sources récupérées
             </p>
             {message.sources.map((chunk, i) => (
               <SourceCard key={chunk.id} chunk={chunk} index={i} />
@@ -62,8 +61,7 @@ export function ChatMessage({ message, isStreaming }: ChatMessageProps) {
 }
 
 function MessageContent({ content }: { content: string }) {
-  // Basic markdown-like rendering: bold, inline code, line breaks
-  const parts = content.split(/(\*\*.*?\*\*|`[^`]+`|\[[^\]]+\])/g)
+  const parts = content.split(/(\*\*.*?\*\*|`[^`]+`|\[\d+\])/g)
 
   return (
     <p className="whitespace-pre-wrap">
@@ -77,20 +75,14 @@ function MessageContent({ content }: { content: string }) {
         }
         if (part.startsWith('`') && part.endsWith('`')) {
           return (
-            <code
-              key={i}
-              className="font-mono text-xs bg-muted/50 text-accent px-1 py-0.5 rounded"
-            >
+            <code key={i} className="font-mono text-xs bg-panel text-accent px-1 py-0.5">
               {part.slice(1, -1)}
             </code>
           )
         }
         if (/^\[\d+\]$/.test(part)) {
           return (
-            <sup
-              key={i}
-              className="font-mono text-[10px] text-accent font-semibold cursor-default"
-            >
+            <sup key={i} className="font-mono text-[10px] text-accent font-bold cursor-default">
               {part}
             </sup>
           )
@@ -107,7 +99,7 @@ function ThinkingDots() {
       {[0, 1, 2].map((i) => (
         <span
           key={i}
-          className="w-1.5 h-1.5 rounded-full bg-accent/60 animate-pulse"
+          className="w-1.5 h-1.5 bg-accent/50 animate-pulse"
           style={{ animationDelay: `${i * 150}ms` }}
         />
       ))}

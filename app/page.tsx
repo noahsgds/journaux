@@ -23,7 +23,6 @@ export default function Home() {
 
   const selectedProfile = profiles.find((p) => p.id === selectedProfileId) ?? null
 
-  // Close sidebar on resize to desktop
   useEffect(() => {
     const onResize = () => {
       if (window.innerWidth >= 1024) setSidebarOpen(false)
@@ -32,7 +31,6 @@ export default function Home() {
     return () => window.removeEventListener('resize', onResize)
   }, [])
 
-  // ── Load profiles ──────────────────────────────────────────────────────────
   const loadProfiles = useCallback(async () => {
     try {
       const res = await fetch('/api/profiles')
@@ -48,7 +46,6 @@ export default function Home() {
     loadProfiles()
   }, [loadProfiles])
 
-  // ── Profile CRUD ───────────────────────────────────────────────────────────
   const handleSaveProfile = useCallback(
     async (data: ProfileCreate) => {
       if (editingProfile) {
@@ -99,11 +96,10 @@ export default function Home() {
     setEditorOpen(true)
   }, [])
 
-  // ── Render ─────────────────────────────────────────────────────────────────
   return (
     <TooltipProvider>
       <div className="flex h-[100dvh] w-screen overflow-hidden bg-canvas">
-        {/* Left sidebar — hidden on mobile, visible on lg+ */}
+        {/* Left sidebar — always visible on lg+ */}
         <div className="hidden lg:flex lg:shrink-0">
           <Sidebar
             activePanel={activePanel}
@@ -133,19 +129,17 @@ export default function Home() {
 
         {/* Right content area */}
         <div className="flex flex-col flex-1 overflow-hidden min-w-0">
-          {/* Mobile top header */}
           <MobileHeader
             onMenuOpen={() => setSidebarOpen(true)}
             activePanel={activePanel}
           />
 
-          {/* Subtle accent line */}
+          {/* Top rule — desktop */}
           <div
             aria-hidden
-            className="hidden lg:block pointer-events-none h-px bg-gradient-to-r from-transparent via-accent/30 to-transparent shrink-0"
+            className="hidden lg:block h-px bg-border shrink-0"
           />
 
-          {/* Main panel */}
           <main className="flex-1 overflow-hidden">
             {activePanel === 'chat' ? (
               <ChatInterface />
@@ -162,14 +156,12 @@ export default function Home() {
             )}
           </main>
 
-          {/* Mobile bottom tab bar */}
           <MobileBottomNav
             activePanel={activePanel}
             onPanelChange={setActivePanel}
           />
         </div>
 
-        {/* Profile editor modal */}
         <ProfileEditor
           open={editorOpen}
           onClose={() => {
@@ -197,18 +189,18 @@ function MobileHeader({
     <header className="lg:hidden flex items-center gap-3 px-4 h-14 border-b border-border bg-surface shrink-0">
       <button
         onClick={onMenuOpen}
-        className="p-2 -ml-1 rounded-md text-foreground-muted hover:text-foreground hover:bg-card transition-colors"
+        className="p-2 -ml-1 text-foreground-muted hover:text-foreground transition-colors"
         aria-label="Ouvrir le menu"
       >
         <Menu className="w-5 h-5" />
       </button>
-      <div className="flex items-center gap-2">
-        <span className="font-display font-semibold text-foreground text-base leading-none">
-          VectorLens
+      <div className="flex items-center gap-2.5">
+        <span className="font-display italic font-bold text-foreground text-lg leading-none">
+          TomKiosque
         </span>
-        <span className="text-foreground-dim">·</span>
+        <span className="text-border">|</span>
         <span className="text-sm text-foreground-muted font-mono">
-          {activePanel === 'chat' ? 'Archives' : 'Profils'}
+          {activePanel === 'chat' ? 'Interroger' : 'Profils'}
         </span>
       </div>
     </header>
@@ -228,7 +220,7 @@ function MobileBottomNav({
     <nav className="lg:hidden flex border-t border-border bg-surface shrink-0 safe-bottom">
       <BottomTab
         icon={<MessageSquare className="w-5 h-5" />}
-        label="Archives"
+        label="Interroger"
         active={activePanel === 'chat'}
         onClick={() => onPanelChange('chat')}
       />
@@ -308,10 +300,10 @@ function FeedPanel({
     <div className="flex flex-col h-full">
       <div className="px-4 lg:px-6 py-4 border-b border-border shrink-0">
         <h2 className="font-display font-semibold text-foreground text-lg">
-          Profils thématiques
+          Profils de veille
         </h2>
         <p className="text-xs font-mono text-foreground-dim mt-0.5">
-          Associez des sujets à chaque personne — obtenez un fil classé par pertinence
+          Associez des sujets à chaque profil — obtenez un fil classé par pertinence
         </p>
       </div>
       <div className="flex-1 overflow-hidden">
