@@ -2,9 +2,8 @@
 
 import React, { useRef, useEffect, useCallback } from 'react'
 import { useChat } from 'ai/react'
-import { Send, RotateCcw, Newspaper } from 'lucide-react'
+import { Send, RotateCcw, Newspaper, AlertTriangle } from 'lucide-react'
 import { cn } from '@/lib/utils'
-import { Button } from '@/components/ui/button'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { ChatMessage } from './ChatMessage'
 import type { ChatMessage as ChatMessageType, JournalChunk } from '@/lib/types'
@@ -12,6 +11,9 @@ import type { ChatMessage as ChatMessageType, JournalChunk } from '@/lib/types'
 export function ChatInterface() {
   const bottomRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLTextAreaElement>(null)
+  // Track whether the user has ever sent a message so we don't flash back to
+  // the empty state when useChat reverts optimistic updates on error.
+  const everSentRef = useRef(false)
 
   const {
     messages,
@@ -22,10 +24,13 @@ export function ChatInterface() {
     data: streamData,
     setMessages,
     append,
+    error,
   } = useChat({
     api: '/api/chat',
     id: 'press-chat',
   })
+
+  if (messages.length > 0) everSentRef.current = true
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' })
@@ -63,7 +68,21 @@ export function ChatInterface() {
     [input, isLoading, handleSubmit],
   )
 
-  const isEmpty = messages.length === 0
+  const handlePromptClick = useCallback(
+    (p: string) => {
+      everSentRef.current = true
+      append({ role: 'user', content: p })
+    },
+    [append],
+  )
+
+  const handleReset = useCallback(() => {
+    everSentRef.current = false
+    setMessages([])
+  }, [setMessages])
+
+  // Only show the empty/welcome state if the user has never sent a message
+  const showEmpty = messages.length === 0 && !everSentRef.current
 
   return (
     <div className="flex flex-col h-full bg-surface">
@@ -77,9 +96,9 @@ export function ChatInterface() {
             Recherche sémantique dans la revue de presse
           </p>
         </div>
-        {messages.length > 0 && (
+        {(messages.length > 0 || everSentRef.current) && (
           <button
-            onClick={() => setMessages([])}
+            onClick={handleReset}
             className="flex items-center gap-1.5 text-xs text-foreground-dim hover:text-foreground font-mono transition-colors"
           >
             <RotateCcw className="w-3 h-3" />
@@ -89,10 +108,10 @@ export function ChatInterface() {
       </div>
 
       {/* Mobile clear */}
-      {messages.length > 0 && (
+      {(messages.length > 0 || everSentRef.current) && (
         <div className="lg:hidden flex justify-end px-4 pt-2 shrink-0">
           <button
-            onClick={() => setMessages([])}
+            onClick={handleReset}
             className="flex items-center gap-1.5 text-xs text-foreground-dim hover:text-foreground font-mono transition-colors"
           >
             <RotateCcw className="w-3 h-3" />
@@ -101,10 +120,25 @@ export function ChatInterface() {
         </div>
       )}
 
+      {/* Error banner */}
+      {error && (
+        <div className="mx-4 mt-3 shrink-0 border border-rouge/40 bg-rouge/5 px-4 py-3 flex items-start gap-3">
+          <AlertTriangle className="w-4 h-4 text-rouge shrink-0 mt-0.5" />
+          <div>
+            <p className="text-sm font-medium text-foreground">Erreur de connexion à l'API</p>
+            <p className="text-xs text-foreground-muted mt-0.5 font-mono">
+              {error.message?.includes('GOOGLE_GENERATIVE_AI_API_KEY')
+                ? 'Clé API Google manquante — configurez GOOGLE_GENERATIVE_AI_API_KEY dans Vercel.'
+                : error.message || 'Vérifiez la configuration de l\'API et réessayez.'}
+            </p>
+          </div>
+        </div>
+      )}
+
       {/* Messages */}
       <div className="flex-1 overflow-hidden">
-        {isEmpty ? (
-          <EmptyState onPrompt={(p) => append({ role: 'user', content: p })} />
+        {showEmpty ? (
+          <EmptyState onPrompt={handlePromptClick} />
         ) : (
           <ScrollArea className="h-full">
             <div className="px-3 py-4 lg:px-6 lg:py-6 space-y-5 lg:space-y-6 max-w-3xl mx-auto">
@@ -131,6 +165,12 @@ export function ChatInterface() {
                   isStreaming
                 />
               )}
+              {/* Empty messages but user has tried — error was shown above */}
+              {messages.length === 0 && everSentRef.current && !error && (
+                <p className="text-sm text-foreground-dim font-mono text-center py-12">
+                  Posez une nouvelle question…
+                </p>
+              )}
               <div ref={bottomRef} />
             </div>
           </ScrollArea>
@@ -140,7 +180,10 @@ export function ChatInterface() {
       {/* Input */}
       <div className="border-t border-border px-3 py-3 lg:px-6 lg:py-4 bg-surface shrink-0">
         <form
-          onSubmit={handleSubmit}
+          onSubmit={(e) => {
+            everSentRef.current = true
+            handleSubmit(e)
+          }}
           className="flex items-end gap-2 lg:gap-3 max-w-3xl mx-auto"
         >
           <div className="flex-1 relative">
