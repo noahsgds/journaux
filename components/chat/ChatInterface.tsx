@@ -125,11 +125,11 @@ export function ChatInterface() {
         <div className="mx-4 mt-3 shrink-0 border border-rouge/40 bg-rouge/5 px-4 py-3 flex items-start gap-3">
           <AlertTriangle className="w-4 h-4 text-rouge shrink-0 mt-0.5" />
           <div>
-            <p className="text-sm font-medium text-foreground">Erreur de connexion à l'API</p>
+            <p className="text-sm font-medium text-foreground">
+              {friendlyError(error.message)}
+            </p>
             <p className="text-xs text-foreground-muted mt-0.5 font-mono">
-              {error.message?.includes('GOOGLE_GENERATIVE_AI_API_KEY')
-                ? 'Clé API Google manquante — configurez GOOGLE_GENERATIVE_AI_API_KEY dans Vercel.'
-                : error.message || 'Vérifiez la configuration de l\'API et réessayez.'}
+              {detailError(error.message)}
             </p>
           </div>
         </div>
@@ -239,6 +239,28 @@ const EXAMPLE_PROMPTS = [
   'Résume les analyses sur la politique internationale',
   'Quels événements récents sont couverts dans les archives ?',
 ]
+
+function friendlyError(msg: string | undefined): string {
+  if (!msg) return 'Erreur de connexion à l\'API'
+  if (msg.includes('quota') || msg.includes('RESOURCE_EXHAUSTED') || msg.includes('rate'))
+    return 'Quota API dépassé'
+  if (msg.includes('GOOGLE_GENERATIVE_AI_API_KEY') || msg.includes('API_KEY') || msg.includes('authentication'))
+    return 'Clé API Google manquante ou invalide'
+  if (msg.includes('model') && msg.includes('not found'))
+    return 'Modèle introuvable'
+  return 'Erreur de connexion à l\'API'
+}
+
+function detailError(msg: string | undefined): string {
+  if (!msg) return 'Vérifiez la configuration et réessayez.'
+  if (msg.includes('quota') || msg.includes('RESOURCE_EXHAUSTED') || msg.includes('free_tier'))
+    return 'Votre clé API a atteint la limite gratuite. Activez la facturation sur console.cloud.google.com ou créez une nouvelle clé sur aistudio.google.com.'
+  if (msg.includes('GOOGLE_GENERATIVE_AI_API_KEY'))
+    return 'Configurez GOOGLE_GENERATIVE_AI_API_KEY dans les variables d\'environnement Vercel.'
+  if (msg.includes('authentication') || msg.includes('API_KEY_INVALID'))
+    return 'Vérifiez que la clé API est correcte dans les variables Vercel.'
+  return 'Vérifiez la configuration de l\'API et réessayez.'
+}
 
 function EmptyState({ onPrompt }: { onPrompt: (p: string) => void }) {
   return (
