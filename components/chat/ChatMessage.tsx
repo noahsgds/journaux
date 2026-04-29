@@ -63,9 +63,14 @@ export function ChatMessage({ message, isStreaming }: ChatMessageProps) {
           </p>
         )}
         {!isUser && message.ragError && (
-          <p className="text-[10px] font-mono text-rouge/70 px-1">
-            Archives inaccessibles (clé API manquante ou quota dépassé) — réponse sans contexte.
-          </p>
+          <div className="border border-rouge/30 bg-rouge/5 px-3 py-2">
+            <p className="text-[10px] font-mono text-rouge font-semibold uppercase tracking-wider mb-1">
+              Archives inaccessibles — réponse sans contexte
+            </p>
+            <p className="text-[10px] font-mono text-rouge/80 break-all">
+              {message.ragError}
+            </p>
+          </div>
         )}
       </div>
     </div>
