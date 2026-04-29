@@ -68,7 +68,7 @@ export async function POST(req: Request) {
     console.error('[TomKiosque] RAG retrieval failed:', ragError)
   }
 
-  const systemPrompt = buildSystemPrompt(chunks)
+  const systemPrompt = buildSystemPrompt(chunks, ragError)
   const data = new StreamData()
   data.append(JSON.parse(JSON.stringify({
     sources: chunks,

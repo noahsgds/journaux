@@ -51,7 +51,11 @@ export async function retrieveChunksForSubjects(
 
 // ─── Prompt construction ──────────────────────────────────────────────────────
 
-export function buildSystemPrompt(chunks: JournalChunk[]): string {
+export function buildSystemPrompt(chunks: JournalChunk[], ragError?: string | null): string {
+  if (ragError) {
+    return `Tu es TomKiosque, un assistant d'analyse de presse.
+Les archives sont temporairement inaccessibles en raison d'une erreur technique. Réponds à la question de l'utilisateur de manière utile en te basant sur tes connaissances générales, et indique clairement en début de réponse que les archives ne sont pas disponibles pour cette requête.`
+  }
   if (chunks.length === 0) {
     return `Tu es TomKiosque, un assistant d'analyse de presse.
 Réponds à la question de l'utilisateur de manière précise et utile, en te basant sur tes connaissances générales.

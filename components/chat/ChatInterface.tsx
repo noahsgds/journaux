@@ -36,26 +36,27 @@ export function ChatInterface() {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' })
   }, [messages, isLoading])
 
-  const enrichedMessages: ChatMessageType[] = messages.map((msg, idx) => {
+  // Each assistant response appends exactly one entry to streamData.
+  // Map streamData[i] to the i-th assistant message so older responses
+  // keep their sources/error metadata after more messages are exchanged.
+  let assistantIdx = 0
+  const enrichedMessages: ChatMessageType[] = messages.map((msg) => {
     const base: ChatMessageType = {
       id: msg.id,
       role: msg.role as 'user' | 'assistant',
       content: msg.content,
       createdAt: msg.createdAt ?? new Date(),
     }
-    if (
-      msg.role === 'assistant' &&
-      idx === messages.length - 1 &&
-      streamData?.length
-    ) {
-      const lastData = streamData[streamData.length - 1] as {
+    if (msg.role === 'assistant') {
+      const msgData = streamData?.[assistantIdx] as {
         sources?: JournalChunk[]
         ragError?: string
         ragWorked?: boolean
-      }
-      if (lastData?.sources) base.sources = lastData.sources
-      if (lastData?.ragError) base.ragError = lastData.ragError
-      if (lastData?.ragWorked !== undefined) base.ragWorked = lastData.ragWorked
+      } | undefined
+      if (msgData?.sources) base.sources = msgData.sources
+      if (msgData?.ragError) base.ragError = msgData.ragError
+      if (msgData?.ragWorked !== undefined) base.ragWorked = msgData.ragWorked
+      assistantIdx++
     }
     return base
   })
