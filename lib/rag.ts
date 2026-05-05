@@ -1,6 +1,6 @@
 import { embed } from 'ai'
 import { openai } from '@ai-sdk/openai'
-import { matchDocuments, type MatchResult } from './supabase'
+import { matchDocuments, searchDocumentsByText, type MatchResult } from './supabase'
 import { parseChunkMeta } from './utils'
 import type { JournalChunk, ChunkMetadata } from './types'
 
@@ -31,9 +31,17 @@ export async function retrieveChunks(
   matchCount = 8,
   matchThreshold = 0.6,
 ): Promise<JournalChunk[]> {
-  const embedding = await getEmbedding(query)
-  const results = await matchDocuments(embedding, matchCount, matchThreshold)
-  return results.map(toJournalChunk)
+  try {
+    const embedding = await getEmbedding(query)
+    const results = await matchDocuments(embedding, matchCount, matchThreshold)
+    return results.map(toJournalChunk)
+  } catch (embeddingErr) {
+    // Vector search failed (e.g. OPENAI_API_KEY missing) — fall back to
+    // Supabase full-text search so the archives are still consulted.
+    console.warn('[TomKiosque] Vector search failed, using text search fallback:', embeddingErr)
+    const results = await searchDocumentsByText(query, matchCount)
+    return results.map(toJournalChunk)
+  }
 }
 
 export async function retrieveChunksForSubjects(

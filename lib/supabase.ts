@@ -46,6 +46,30 @@ export async function matchDocuments(
   return (data ?? []) as MatchResult[]
 }
 
+// ─── Full-text search fallback (no embedding required) ───────────────────────
+
+export async function searchDocumentsByText(
+  query: string,
+  matchCount = 8,
+): Promise<MatchResult[]> {
+  const admin = createAdminClient()
+  const table = process.env.SUPABASE_DOCUMENTS_TABLE ?? 'chunks'
+
+  const { data, error } = await admin
+    .from(table)
+    .select('id, content, metadata')
+    .textSearch('content', query, { type: 'websearch' })
+    .limit(matchCount)
+
+  if (error) throw new Error(`Supabase text search error: ${error.message}`)
+  return (data ?? []).map((r) => ({
+    id: String(r.id),
+    content: r.content as string,
+    metadata: (r.metadata ?? {}) as Record<string, unknown>,
+    similarity: 0.5,
+  }))
+}
+
 // ─── Profiles CRUD ────────────────────────────────────────────────────────────
 
 export async function getProfiles() {
